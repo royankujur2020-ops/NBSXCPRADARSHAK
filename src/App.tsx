@@ -80,8 +80,8 @@ export default function App() {
       } else {
         setError("Could not generate explanation. Please try again.");
       }
-    } catch (err) {
-      setError("Failed to connect to the AI mentor. Please check your connection.");
+    } catch (err: any) {
+      setError(err.message || "Failed to connect to the AI mentor. Please check your connection.");
       console.error(err);
     } finally {
       setLoading(false);
