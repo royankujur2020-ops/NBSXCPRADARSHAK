@@ -1,0 +1,5 @@
+{
+  "name": "Pradarshak: The Visual Mentor",
+  "description": "An AI-powered rural education tutor that explains textbook problems and handwritten notes using local metaphors and languages.",
+  "requestFramePermissions": ["camera"]
+}
