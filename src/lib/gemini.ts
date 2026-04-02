@@ -1,15 +1,16 @@
 import { GoogleGenAI } from "@google/genai";
 
-// Access the API key from the environment defined in vite.config.ts
-const apiKey = process.env.GEMINI_API_KEY;
-
 export async function analyzeProblem(imageBase64: string, language: string = "Bengali") {
-  if (!apiKey) {
-    throw new Error("API Key is missing. Please configure GEMINI_API_KEY in your environment.");
+  // Access the API key directly from process.env which is defined in vite.config.ts
+  const apiKey = process.env.GEMINI_API_KEY;
+
+  if (!apiKey || apiKey === "undefined" || apiKey === "MY_GEMINI_API_KEY") {
+    throw new Error("The AI Mentor's connection key is not set. Please ensure you have added your GEMINI_API_KEY in the AI Studio Secrets panel.");
   }
 
   const ai = new GoogleGenAI({ apiKey });
-  const model = "gemini-3.1-pro-preview";
+  // Using gemini-3-flash-preview as it's the most reliable model for free-tier/injected keys
+  const model = "gemini-3-flash-preview";
   
   const prompt = `
     You are "Pradarshak", a world-class educational mentor and expert tutor for rural students in North Bengal.
@@ -43,25 +44,28 @@ export async function analyzeProblem(imageBase64: string, language: string = "Be
       model,
       contents: [{ parts: [imagePart, { text: prompt }] }],
       config: {
-        temperature: 0.2, // Lower temperature for more deterministic/accurate results
+        temperature: 0.1, // Very low temperature for maximum accuracy
         topP: 0.8,
         topK: 40,
       }
     });
 
     if (!response.text) {
-      throw new Error("The AI mentor could not generate a response. Please try a clearer photo.");
+      throw new Error("The AI mentor could not read the image. Please try taking a clearer, brighter photo.");
     }
 
     return response.text;
   } catch (error: any) {
     console.error("Gemini API Error:", error);
-    if (error.message?.includes("API key not valid")) {
-      throw new Error("Invalid API Key. Please check your configuration.");
+    
+    if (error.message?.includes("API key not valid") || error.message?.includes("403")) {
+      throw new Error("The connection key is invalid. Please update your GEMINI_API_KEY in the Secrets panel.");
     }
-    if (error.message?.includes("quota")) {
-      throw new Error("The AI mentor is currently busy (quota exceeded). Please try again in a few minutes.");
+    
+    if (error.message?.includes("quota") || error.message?.includes("429")) {
+      throw new Error("The AI mentor is currently helping many students. Please wait a minute and try again.");
     }
-    throw new Error(`Connection Error: ${error.message || "Unknown error"}`);
+
+    throw new Error(`Mentor Connection Error: ${error.message || "Please check your internet and try again."}`);
   }
 }
