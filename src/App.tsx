@@ -35,6 +35,14 @@ export default function App() {
   
   const webcamRef = useRef<Webcam>(null);
 
+  // Check for API key on mount
+  useEffect(() => {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey || apiKey === "" || apiKey === "MY_GEMINI_API_KEY" || apiKey === "undefined") {
+      setError("The AI Mentor's connection key is missing. Please add 'GEMINI_API_KEY' in the Secrets panel and RE-DEPLOY.");
+    }
+  }, []);
+
   // Load history from localStorage
   useEffect(() => {
     const savedHistory = localStorage.getItem('pradarshak_history');

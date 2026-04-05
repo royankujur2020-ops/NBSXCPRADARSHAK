@@ -4,8 +4,10 @@ export async function analyzeProblem(imageBase64: string, language: string = "Be
   // Access the API key from process.env (defined in vite.config.ts)
   const apiKey = process.env.GEMINI_API_KEY;
 
-  // Check if the key is missing or still the placeholder
+  // Debug check (will show in browser console)
+  console.log("AI Mentor: Checking connection...");
   if (!apiKey || apiKey === "" || apiKey === "MY_GEMINI_API_KEY" || apiKey === "undefined") {
+    console.error("AI Mentor: Key is missing or invalid.");
     throw new Error("API Key is missing. Please follow these steps:\n1. Go to the 'Secrets' panel in AI Studio.\n2. Add a secret named 'GEMINI_API_KEY'.\n3. Click 'Deploy' to rebuild your app with the key.");
   }
 
