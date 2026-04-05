@@ -4,9 +4,12 @@ export async function analyzeProblem(imageBase64: string, language: string = "Be
   // Access the API key from process.env (defined in vite.config.ts)
   const apiKey = process.env.GEMINI_API_KEY;
 
-  // We've removed the explicit check as requested. 
-  // The SDK will attempt to use the key provided in the environment.
-  const ai = new GoogleGenAI({ apiKey: apiKey || "" });
+  // Check if the key is missing or still the placeholder
+  if (!apiKey || apiKey === "" || apiKey === "MY_GEMINI_API_KEY" || apiKey === "undefined") {
+    throw new Error("API Key is missing. Please follow these steps:\n1. Go to the 'Secrets' panel in AI Studio.\n2. Add a secret named 'GEMINI_API_KEY'.\n3. Click 'Deploy' to rebuild your app with the key.");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
   const model = "gemini-3-flash-preview";
   
   const prompt = `
@@ -49,7 +52,7 @@ export async function analyzeProblem(imageBase64: string, language: string = "Be
     
     // Handle specific API errors gracefully
     if (error.message?.includes("API key not valid") || error.message?.includes("403") || error.message?.includes("401")) {
-      throw new Error("The AI Mentor is having trouble connecting. Please ensure your GEMINI_API_KEY is set in the Secrets panel and the app is re-deployed.");
+      throw new Error("The API key is invalid. Please check your 'GEMINI_API_KEY' in the Secrets panel and re-deploy.");
     }
     
     if (error.message?.includes("quota") || error.message?.includes("429")) {
